@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate CRM - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+ 
+</head>
+<body>
+    <div class="main-layout">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">RealEstate CRM</a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link active">
+                        <span class="nav-icon">📊</span>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="leads.html" class="nav-link">
+                        <span class="nav-icon">👥</span>
+                        Leads
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="accounts.html" class="nav-link">
+                        <span class="nav-icon">🏢</span>
+                        Accounts
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="contacts.html" class="nav-link">
+                        <span class="nav-icon">📞</span>
+                        Contacts
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="deals.html" class="nav-link">
+                        <span class="nav-icon">💼</span>
+                        Deals
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Dashboard</h1>
+                <p class="page-subtitle">Welcome to your Real Estate CRM - Streamline Your Property Management</p>
+            </div>
+
+            <!-- Dashboard Stats -->
+            <div class="dashboard-stats">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Quick Stats</h3>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-leads">-</div>
+                            <div class="stat-label">Total Leads</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-accounts">-</div>
+                            <div class="stat-label">Active Accounts</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-contacts">-</div>
+                            <div class="stat-label">Contacts</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-deals">-</div>
+                            <div class="stat-label">Open Deals</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Recent Activity</h3>
+                </div>
+                <div class="activity-list" id="recent-activity">
+                    <div class="loading"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        /* Dashboard specific styles */
+        .dashboard-stats {
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: var(--spacing-lg);
+            background-color: var(--light-gray);
+            border-radius: var(--radius-md);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .activity-list {
+            min-height: 200px;
+        }
+        
+        .activity-item {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--medium-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .activity-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .activity-time {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+    </style>
+
+    <script>
+        // Dashboard functionality
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadDashboardData();
+        });
+
+        async function loadDashboardData() {
+            try {
+                // Load stats from each module
+                const [leads, accounts, contacts, deals] = await Promise.all([
+                    api.get('/leads').catch(() => ({ data: [] })),
+                    api.get('/accounts').catch(() => ({ data: [] })),
+                    api.get('/contacts').catch(() => ({ data: [] })),
+                    api.get('/deals').catch(() => ({ data: [] }))
+                ]);
+
+                // Update stats
+                DOM.get('total-leads').textContent = leads.data?.length || 0;
+                DOM.get('total-accounts').textContent = accounts.data?.length || 0;
+                DOM.get('total-contacts').textContent = contacts.data?.length || 0;
+                DOM.get('total-deals').textContent = deals.data?.length || 0;
+
+                // Load recent activity
+                await loadRecentActivity();
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                Notification.show('Error loading dashboard data', 'error');
+            }
+        }
+
+        async function loadRecentActivity() {
+            const activityContainer = DOM.get('recent-activity');
+            
+            try {
+                // This would typically come from a dedicated activity endpoint
+                // For now, we'll show a placeholder
+                activityContainer.innerHTML = `
+                    <div class="activity-item">
+                        <div class="activity-content">
+                            <div class="activity-title">New lead added</div>
+                            <div class="activity-description">John Smith - Interested in downtown property</div>
+                        </div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-content">
+                            <div class="activity-title">Deal updated</div>
+                            <div class="activity-description">Sunset Villa - Status changed to negotiation</div>
+                        </div>
+                        <div class="activity-time">4 hours ago</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-content">
+                            <div class="activity-title">Contact added</div>
+                            <div class="activity-description">Sarah Johnson - Real estate agent</div>
+                        </div>
+                        <div class="activity-time">1 day ago</div>
+                    </div>
+                `;
+            } catch (error) {
+                activityContainer.innerHTML = '<p class="text-center">No recent activity available</p>';
+            }
+        }
+
+        // Update active navigation
+        function updateActiveNav() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        updateActiveNav();
+    </script>
+
+       <script src="env.js"></script>
+    <script src="utils.js"></script>
+</body>
+</html>
